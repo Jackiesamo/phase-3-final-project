@@ -29,17 +29,17 @@ class Account(Base):
     def __repr__(self):
         return f"<Account id={self.id} name={self.name!r} balance={self.balance}>"
 
-# class Transaction(Base):
-#     __tablename__ = "transactions"
+class Transaction(Base):
+    __tablename__ = "transactions"
 
-#     id = Column(Integer, primary_key=True)
-#     account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False)
-#     amount = Column(Float, nullable=False)
-#     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
-#     description = Column(Text, nullable=True)
-#     category = Column(String(100), nullable=True)
+    id = Column(Integer, primary_key=True)
+    account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False)
+    amount = Column(Float, nullable=False)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    description = Column(Text, nullable=True)
+    category = Column(String(100), nullable=True)
 
-#     account = relationship("Account", back_populates="transactions")
+    account = relationship("Account", back_populates="transactions")
 
-#     def __repr__(self):
-#         return f"<Transaction id={self.id} amount={self.amount} at={self.timestamp.isoformat()}>"
+    def __repr__(self):
+        return f"<Transaction id={self.id} amount={self.amount} at={self.timestamp.isoformat()}>"
