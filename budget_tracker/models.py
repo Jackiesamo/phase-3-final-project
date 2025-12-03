@@ -3,17 +3,17 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from .db import Base
 
-# class User(Base):
-#     __tablename__ = "users"
+class User(Base):
+    __tablename__ = "users"
 
-#     id = Column(Integer, primary_key=True)
-#     name = Column(String(100), nullable=False)
-#     email = Column(String(255), unique=True, nullable=True)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    email = Column(String(255), unique=True, nullable=True)
 
-#     accounts = relationship("Account", back_populates="owner", cascade="all, delete-orphan")
+    accounts = relationship("Account", back_populates="owner", cascade="all, delete-orphan")
 
-#     def __repr__(self):
-#         return f"<User id={self.id} name={self.name!r}>"
+    def __repr__(self):
+        return f"<User id={self.id} name={self.name!r}>"
 
 # class Account(Base):
 #     __tablename__ = "accounts"
