@@ -10,16 +10,16 @@ def format_currency(amount: float) -> str:
     """
     return f"KES {amount:,.2f}"
 
-# def summarize_transactions(txs: Iterable[Dict]) -> Dict[str, float]:
-#     """
-#     Given an iterable of transaction dicts containing 'category' and 'amount',
-#     returns a mapping category -> total_amount.
-#     """
-#     totals: Dict[str, float] = {}
-#     for t in txs:
-#         cat = t.get("category") or "Uncategorized"
-#         totals[cat] = totals.get(cat, 0.0) + float(t.get("amount", 0.0))
-#     return totals
+def summarize_transactions(txs: Iterable[Dict]) -> Dict[str, float]:
+    """
+    Given an iterable of transaction dicts containing 'category' and 'amount',
+    returns a mapping category -> total_amount.
+    """
+    totals: Dict[str, float] = {}
+    for t in txs:
+        cat = t.get("category") or "Uncategorized"
+        totals[cat] = totals.get(cat, 0.0) + float(t.get("amount", 0.0))
+    return totals
 
 # def transactions_to_csv(txs: Iterable[Dict]) -> str:
 #     """
