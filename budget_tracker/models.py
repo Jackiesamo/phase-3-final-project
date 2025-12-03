@@ -15,19 +15,19 @@ class User(Base):
     def __repr__(self):
         return f"<User id={self.id} name={self.name!r}>"
 
-# class Account(Base):
-#     __tablename__ = "accounts"
+class Account(Base):
+    __tablename__ = "accounts"
 
-#     id = Column(Integer, primary_key=True)
-#     name = Column(String(100), nullable=False)
-#     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-#     balance = Column(Float, default=0.0, nullable=False)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    balance = Column(Float, default=0.0, nullable=False)
 
-#     owner = relationship("User", back_populates="accounts")
-#     transactions = relationship("Transaction", back_populates="account", cascade="all, delete-orphan")
+    owner = relationship("User", back_populates="accounts")
+    transactions = relationship("Transaction", back_populates="account", cascade="all, delete-orphan")
 
-#     def __repr__(self):
-#         return f"<Account id={self.id} name={self.name!r} balance={self.balance}>"
+    def __repr__(self):
+        return f"<Account id={self.id} name={self.name!r} balance={self.balance}>"
 
 # class Transaction(Base):
 #     __tablename__ = "transactions"
