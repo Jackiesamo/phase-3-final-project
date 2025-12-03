@@ -3,12 +3,12 @@ from datetime import datetime
 import csv
 from io import StringIO
 
-# def format_currency(amount: float) -> str:
-#     """
-#     Format amount into a simple currency string (KES).
-#     Adjust the prefix to your preferred currency if needed.
-#     """
-#     return f"KES {amount:,.2f}"
+def format_currency(amount: float) -> str:
+    """
+    Format amount into a simple currency string (KES).
+    Adjust the prefix to your preferred currency if needed.
+    """
+    return f"KES {amount:,.2f}"
 
 # def summarize_transactions(txs: Iterable[Dict]) -> Dict[str, float]:
 #     """
