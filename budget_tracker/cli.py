@@ -173,7 +173,8 @@ def report_spending(account_id):
     """Show spending totals by category for an account."""
     txs = crud.list_transactions_for_account(account_id)
     tx_dicts = [
-        {"id": t.id, "amount": t.amount, "category": t.category or "Uncategorized", "timestamp": t.timestamp.isoformat()}
+        {"id": t.id
+        , "amount": t.amount, "category": t.category or "Uncategorized", "timestamp": t.timestamp.isoformat()}
         for t in txs
     ]
     totals = utils.summarize_transactions(tx_dicts)
