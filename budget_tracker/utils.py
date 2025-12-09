@@ -29,13 +29,16 @@ def transactions_to_csv(txs: Iterable[Dict]) -> str:
     output = StringIO()
     writer = csv.writer(output)
     writer.writerow(["id","account_id","amount","timestamp","description","category"])
+    
     for t in txs:
-        writer.writerow([
-            t.get("id"),
-            t.get("account_id"),
-            t.get("amount"),
-            t.get("timestamp"),
-            t.get("description"),
-            t.get("category"),
-        ])
-    return output.getvalue()
+     ts = t.get("timestamp")
+    if isinstance(ts, datetime):
+        ts = ts.isoformat()
+    writer.writerow([
+        t.get("id"),
+        t.get("account_id"),
+        t.get("amount"),
+        ts,
+        t.get("description"),
+        t.get("category") or "Uncategorized",
+    ])

@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text
+
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from .db import Base
@@ -35,11 +36,12 @@ class Transaction(Base):
     id = Column(Integer, primary_key=True)
     account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False)
     amount = Column(Float, nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    # ✅ Store timestamp as ISO string to avoid SQLite conversion issues
+    timestamp = Column(String, default=lambda: datetime.utcnow().isoformat(), nullable=False)
     description = Column(Text, nullable=True)
     category = Column(String(100), nullable=True)
 
     account = relationship("Account", back_populates="transactions")
 
     def __repr__(self):
-        return f"<Transaction id={self.id} amount={self.amount} at={self.timestamp.isoformat()}>"
+        return f"<Transaction id={self.id} amount={self.amount} at={self.timestamp}>"
