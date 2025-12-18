@@ -47,3 +47,28 @@ DELETE COMMANDS (with safety)
 
 3️⃣ Delete user
 
+Third prompt
+
+Does the above code support upgrade and delete
+
+
+
+Response
+The combined cli.py I gave you fully supports BOTH UPDATE and DELETE, end-to-end, as long as your crud.py contains the matching functions we discussed.
+
+
+Users
+Command:
+budget user update 1 --name "Jane" --email jane@mail.com
+Accounts
+Command:
+budget account update 2 --name "Savings"
+
+Transactions (with balance correction)
+Command:
+budget tx update 5 --amount -120 --cat Food
+
+
+
+
+

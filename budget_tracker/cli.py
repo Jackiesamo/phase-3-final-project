@@ -15,15 +15,13 @@ def error(msg):
     click.echo(click.style(msg, fg="red"))
 
 def format_timestamp(ts):
-    """Safely convert timestamp to string for display."""
     if isinstance(ts, datetime):
         return ts.isoformat()
     elif isinstance(ts, str):
         return ts
     elif isinstance(ts, (int, float)):
         return datetime.fromtimestamp(ts).isoformat()
-    else:
-        return str(ts)
+    return str(ts)
 
 # ---------------- CLI Setup ----------------
 @click.group()
@@ -34,25 +32,23 @@ def cli():
 # ----- Setup -----
 @cli.command("init-db")
 def init_db_cmd():
-    """Create the database tables."""
     init_db()
-    success("Database initialized (tables created).")
+    success("Database initialized.")
 
-# ----- User commands -----
+# ================= USER COMMANDS =================
 @cli.group("user")
 def user_group():
-    """User management commands."""
     pass
 
 @user_group.command("add")
 @click.argument("name")
-@click.option("--email", default=None, help="Email address of the user")
+@click.option("--email", default=None)
 def user_add(name, email):
     try:
         u = crud.create_user(name, email)
-        success(f"Created user: [{u.id}] {u.name} ({u.email})")
+        success(f"Created user [{u.id}] {u.name}")
     except Exception as e:
-        error(f"Could not create user: {e}")
+        error(str(e))
 
 @user_group.command("list")
 def user_list():
@@ -63,20 +59,40 @@ def user_list():
     for u in users:
         info(f"[{u.id}] {u.name} — {u.email or 'no-email'}")
 
-# ----- Account commands -----
+@user_group.command("update")
+@click.argument("user_id", type=int)
+@click.option("--name", default=None)
+@click.option("--email", default=None)
+def user_update(user_id, name, email):
+    try:
+        u = crud.update_user(user_id, name=name, email=email)
+        success(f"Updated user [{u.id}] {u.name}")
+    except Exception as e:
+        error(str(e))
+
+@user_group.command("delete")
+@click.argument("user_id", type=int)
+@click.confirmation_option(prompt="Delete user and all accounts?")
+def user_delete(user_id):
+    try:
+        crud.delete_user(user_id)
+        success("User deleted.")
+    except Exception as e:
+        error(str(e))
+
+# ================= ACCOUNT COMMANDS =================
 @cli.group("account")
 def account_group():
-    """Account management commands."""
     pass
 
 @account_group.command("add")
 @click.argument("user_id", type=int)
 @click.argument("name")
-@click.option("--balance", type=float, default=0.0, help="Initial balance")
+@click.option("--balance", type=float, default=0.0)
 def account_add(user_id, name, balance):
     try:
         a = crud.create_account(user_id, name, balance)
-        success(f"Account created: [{a.id}] {a.name} — balance {utils.format_currency(a.balance)}")
+        success(f"Created account [{a.id}] {a.name} — {utils.format_currency(a.balance)}")
     except Exception as e:
         error(str(e))
 
@@ -85,7 +101,7 @@ def account_add(user_id, name, balance):
 def account_list(user_id):
     accounts = crud.list_accounts_for_user(user_id)
     if not accounts:
-        info("No accounts for this user.")
+        info("No accounts found.")
         return
     for a in accounts:
         info(f"[{a.id}] {a.name} — {utils.format_currency(a.balance)}")
@@ -94,38 +110,54 @@ def account_list(user_id):
 @click.argument("account_id", type=int)
 def account_summary(account_id):
     try:
-        account_info, txs = crud.account_summary(account_id)
+        info_data, txs = crud.account_summary(account_id)
+        success(
+            f"Account [{info_data['id']}] {info_data['name']} "
+            f"Balance: {utils.format_currency(info_data['balance'])}"
+        )
+        for t in txs[:10]:
+            info(
+                f"[{t['id']}] {format_timestamp(t['timestamp'])} "
+                f"{utils.format_currency(t['amount'])} "
+                f"{t.get('description') or ''} ({t.get('category') or ''})"
+            )
     except Exception as e:
         error(str(e))
-        return
 
-    success(f"Account: [{account_info['id']}] {account_info['name']} - Balance: {utils.format_currency(account_info['balance'])}")
-    if not txs:
-        info("No transactions yet.")
-        return
+@account_group.command("update")
+@click.argument("account_id", type=int)
+@click.option("--name", default=None)
+def account_update(account_id, name):
+    try:
+        a = crud.update_account(account_id, name=name)
+        success(f"Updated account [{a.id}] {a.name}")
+    except Exception as e:
+        error(str(e))
 
-    info("Recent transactions (most recent first):")
-    for t in txs[:10]:
-        ts_display = format_timestamp(t.get("timestamp"))
-        desc = t.get("description") or ""
-        cat = t.get("category") or ""
-        info(f" - [{t['id']}] {ts_display} {utils.format_currency(t['amount'])} {desc} ({cat})")
+@account_group.command("delete")
+@click.argument("account_id", type=int)
+@click.confirmation_option(prompt="Delete account and all transactions?")
+def account_delete(account_id):
+    try:
+        crud.delete_account(account_id)
+        success("Account deleted.")
+    except Exception as e:
+        error(str(e))
 
-# ----- Transaction commands -----
+# ================= TRANSACTION COMMANDS =================
 @cli.group("tx")
 def tx_group():
-    """Transaction commands."""
     pass
 
 @tx_group.command("add")
 @click.argument("account_id", type=int)
 @click.argument("amount", type=float)
-@click.option("--desc", default=None, help="Description")
-@click.option("--cat", default=None, help="Category")
+@click.option("--desc", default=None)
+@click.option("--cat", default=None)
 def tx_add(account_id, amount, desc, cat):
     try:
         tx = crud.add_transaction(account_id, amount, desc, cat)
-        success(f"Transaction added: [{tx.id}] {utils.format_currency(tx.amount)}")
+        success(f"Added transaction [{tx.id}] {utils.format_currency(tx.amount)}")
     except Exception as e:
         error(str(e))
 
@@ -137,36 +169,37 @@ def tx_list(account_id):
         info("No transactions.")
         return
     for t in txs:
-        ts_display = format_timestamp(t.timestamp)
-        info(f"[{t.id}] {ts_display} {utils.format_currency(t.amount)} — {t.description or ''} ({t.category or ''})")
+        info(
+            f"[{t.id}] {format_timestamp(t.timestamp)} "
+            f"{utils.format_currency(t.amount)} "
+            f"{t.description or ''} ({t.category or ''})"
+        )
 
-@tx_group.command("export")
-@click.argument("account_id", type=int)
-@click.option("--out", default=None, help="Path to save CSV (if omitted prints CSV to stdout)")
-def tx_export(account_id, out):
-    txs = crud.list_transactions_for_account(account_id)
-    tx_dicts = [
-        {
-            "id": t.id,
-            "account_id": t.account_id,
-            "amount": t.amount,
-            "timestamp": format_timestamp(t.timestamp),
-            "description": t.description,
-            "category": t.category,
-        } for t in txs
-    ]
-    csv_data = utils.transactions_to_csv(tx_dicts)
-    if out:
-        with open(out, "w", encoding="utf-8") as f:
-            f.write(csv_data)
-        success(f"Wrote CSV to {out}")
-    else:
-        click.echo(csv_data)
+@tx_group.command("update")
+@click.argument("tx_id", type=int)
+@click.option("--amount", type=float, default=None)
+@click.option("--desc", default=None)
+@click.option("--cat", default=None)
+def tx_update(tx_id, amount, desc, cat):
+    try:
+        tx = crud.update_transaction(tx_id, amount, desc, cat)
+        success(f"Updated transaction [{tx.id}]")
+    except Exception as e:
+        error(str(e))
 
-# ----- Reports -----
+@tx_group.command("delete")
+@click.argument("tx_id", type=int)
+@click.confirmation_option(prompt="Delete this transaction?")
+def tx_delete(tx_id):
+    try:
+        crud.delete_transaction(tx_id)
+        success("Transaction deleted.")
+    except Exception as e:
+        error(str(e))
+
+# ================= REPORTS =================
 @cli.group("report")
 def report_group():
-    """Reporting commands."""
     pass
 
 @report_group.command("user-balance")
@@ -180,17 +213,21 @@ def report_user_balance(user_id):
 def report_spending(account_id):
     txs = crud.list_transactions_for_account(account_id)
     tx_dicts = [
-        {"id": t.id, "amount": t.amount, "category": t.category or "Uncategorized", "timestamp": format_timestamp(t.timestamp)}
+        {
+            "amount": t.amount,
+            "category": t.category or "Uncategorized",
+            "timestamp": format_timestamp(t.timestamp),
+        }
         for t in txs
     ]
     totals = utils.summarize_transactions(tx_dicts)
     if not totals:
-        info("No transactions to summarize.")
+        info("No transactions.")
         return
     success("Spending by category:")
     for cat, total in totals.items():
         info(f" - {cat}: {utils.format_currency(total)}")
 
-# ----- Entry point -----
+# ---------------- Entry ----------------
 if __name__ == "__main__":
     cli()
