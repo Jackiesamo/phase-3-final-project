@@ -1,0 +1,49 @@
+The first prompt
+This is my model.py, check if I can update and delete from my database
+
+Responce
+Your models are correctly defined 👍 and yes — you are able to update and delete records in your database with this setup.
+Let me break it down clearly and also point out a couple of best-practice notes specific to your Budget Tracker CLI (SQLAlchemy + SQLite).
+The second prompt,
+ This is cli.py check if it's in line with everything for me to be able to delete and update from my database.
+Response
+You’re very close, and your cli.py is well-structured and consistent with your models 👍
+ However, as it stands right now, your CLI does NOT yet support updating or deleting records — not because of a bug, but because the commands simply don’t exist yet.
+❌ What is missing (important)
+No UPDATE commands
+You currently cannot:
+Rename a user
+
+
+Change account name
+
+
+Edit transaction amount, description, or category
+
+
+
+No DELETE commands
+You currently cannot:
+Delete a user
+
+
+Delete an account
+
+
+Delete a transaction
+🔄 UPDATE COMMANDS (recommended)
+1️⃣ Update user
+2️⃣ Update account
+
+3️⃣ Update transaction
+
+
+DELETE COMMANDS (with safety)
+
+1️⃣ Delete transaction
+
+2️⃣ Delete account
+
+
+3️⃣ Delete user
+
